@@ -1,7 +1,7 @@
 '''
-Author: Yixiang Wang Email: yixiang.wang@yale.edu Wechat: tsinghuawyx
-version: .02	Date: 01/22/2020
-WARNING: THIS IS NOT AN APP FOR COMMERCIAL USE
+Author: Yixiang Wang Email: yixiang.wang@yale.edu 
+version: .01	Date: 01/22/2020
+WARNING: THIS IS NOT AN APP FOR COMMERCIAL USE!
 '''
 from bs4 import BeautifulSoup
 import urllib
@@ -11,7 +11,6 @@ import csv
 import time
 import os
 import random
-import unicodecsv
 
 def iterGet(inputBox):
     '''
@@ -140,12 +139,17 @@ def pullOutNumber(curStr, tag):
     '''
         Get the number given certain tags and strings
     '''
+    
+    # Use tag to identify the index to start examination
     if (curStr.find(tag)> 0):
         testIdx = curStr.find(tag)
+        
+        # Record the initial index
         while not curStr[testIdx].isdigit():
             testIdx = testIdx + 1
         iniIdx = testIdx
         
+        # Record the last index
         while curStr[testIdx].isdigit():
             testIdx = testIdx + 1
         endIdx = testIdx
@@ -170,12 +174,17 @@ def pullOutInfo(ListData):
     
     n = len(ListData)
     for i in range(n):
+    
+        # Get current string
         curStr = ListData[i]
+        
+        # Get numbers of differenct cases
         Confirmed = Confirmed + pullOutNumber(curStr, '确诊')
         Suspected = Suspected + pullOutNumber(curStr, '疑似')
         Cured = Cured + pullOutNumber(curStr, '治愈')
         Dead = Dead + pullOutNumber(curStr, '死亡')
     
+    # construct current data for storage
     curData.append((Confirmed,Suspected,Cured,Dead,str(datetime.today())))
     return curData
             
@@ -200,10 +209,12 @@ def runCrawler(quote_page):
         #For breaking the while loop if the scraping is blocked or delayed
     if time.time() > time_out:
         print("Session time out")
-
+    
+    # Output summary data
     if data is not None:			
         outputCSV(data, "_all")
         
+    # Output data by provinces
     if ListData is not None:
         outputCSV_Chinese(ListData, "_byProvinces")
 
@@ -213,10 +224,10 @@ def runCrawler(quote_page):
 '''
 Main function
 '''		
-print("Author: Yixiang_Wang   Versioin:.02   Email:yixiang.wang@yale.edu   Wechat ID: tsinghuawyx")
-print("FOR STUDY PURPOSE ONLY. NOT FOR COMMERCIAL USE") 
+print("Author: Yixiang_Wang   Versioin:.02   Email:yixiang.wang@yale.edu")
+print("FOR STUDY PURPOSE ONLY. NOT FOR COMMERCIAL USE!") 
 print("\n")
-#quote_page = 'https://newhaven.craigslist.org/search/apa?min_price=1200&max_price=1700&min_bedrooms=2&max_bedrooms=3&min_bathrooms=1&max_bathrooms=2&availabilityMode=0&sale_date=all+dates'
+
 try:
     # Store the url that the user input at the first time as the default url
     print("Default URL: https://3g.dxy.cn/newh5/view/pneumonia")
@@ -247,6 +258,9 @@ except ValueError:
 
 # Keep updating if the program is on
 while True:
+    
+    # Generate a random delay
+    
     try:
         runCrawler(quote_page) 
         print('Successfully scrape the data ' + str(datetime.today()))
@@ -262,7 +276,11 @@ while True:
         time.sleep(1800)
 
     except:
-        print("Something wrong, could be an invalid URL input. Please exit and restart with (renew) a correct URL")
+        print("Something wrong, could be an invalid URL input. Restart in ")
+        x = random.randint(1,10) + random.random()
+        print(str(x) + "sec")
+        time.sleep(x) # Try again shortly
+        continue
         #os.remove('Default_URL.txt')
         #os.remove(getFilename())
         

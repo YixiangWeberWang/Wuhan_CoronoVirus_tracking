@@ -1,7 +1,7 @@
 '''
-Author: Yixiang Wang Email: yixiang.wang@yale.edu Wechat: tsinghuawyx
+Author: Yixiang Wang Email: yixiang.wang@yale.edu 
 version: .02	Date: 04/12/2018
-WARNING: THIS IS NOT FOR COMMERCIAL USE
+WARNING: THIS IS NOT FOR COMMERCIAL USE!
 Some comments are from http://cx-freeze.readthedocs.io/en/latest/distutils.html
 This script is for building an executable from the .py file
 '''
