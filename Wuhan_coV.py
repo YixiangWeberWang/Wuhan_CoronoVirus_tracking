@@ -32,12 +32,12 @@ def iterGet(inputBox):
 
 
 
-def getFilename(tag):
+def getFilename(tag, fmt):
     '''
         This function is to pull out the date info and return the .csv filename
     '''
     todayStr = str(datetime.today())
-    filename = todayStr + '.csv'
+    filename = todayStr
     filenameList = list(filename)
     flag = True
     while flag:
@@ -45,10 +45,9 @@ def getFilename(tag):
             filenameList.remove(':')
         except:
             flag = False
-            filename = ''.join(filenameList)
+            filename = ''.join(filenameList)        
             
-    filename = filename[0:10] 
-            
+    filename = filename[0:10]
     try:
         filename = filename + tag
     except:
@@ -56,7 +55,7 @@ def getFilename(tag):
         filename = filename + tag
             
     
-    filename = filename + '.csv'
+    filename = filename + fmt
     return filename
 
 
@@ -66,7 +65,7 @@ def outputCSV(data, tag):
         This function is to output the csv file
     '''
 
-    with open(getFilename(tag), 'a', encoding = 'utf-8') as csv_file:
+    with open(getFilename(tag, '.csv'), 'a', encoding = 'utf-8') as csv_file:
         writer = csv.writer(csv_file)
         # The for loop
         for i in range(len(data)):
@@ -74,17 +73,20 @@ def outputCSV(data, tag):
             writer.writerow(data[i])
             
 
-def outputCSV_Chinese(data, tag):
+def outputTXT_Chinese(data, tag):
     '''
         This function is to output the csv file
     '''
 
-    with open(getFilename(tag), 'a', newline='', encoding='utf-8-sig') as csv_file:
-        writer = csv.writer(csv_file)
+    with open(getFilename(tag,'.txt'), 'a', encoding='utf-8-sig') as txt_file:
         # The for loop
         for i in range(len(data)):
             #print(name,price)
-            writer.writerow(data[i])
+            txt_file.write(data[i])
+            txt_file.write('\n')
+        
+        txt_file.write('截至' + str(datetime.today()))
+        txt_file.write('\n')
 
 
 
@@ -141,7 +143,7 @@ def pullOutNumber(curStr, tag):
     '''
     
     # Use tag to identify the index to start examination
-    if (curStr.find(tag)> 0):
+    if (curStr.find(tag)>= 0):
         testIdx = curStr.find(tag)
         
         # Record the initial index
@@ -195,28 +197,38 @@ def runCrawler(quote_page):
     '''
         Scraping the first 5 pages starting from the input page  
     '''
-    data = []
+    data_country = []
     
     soup = getSoup(quote_page)
     time_out = time.time() + 60 #For breaking the while loop if the scraping is blocked or delayed
     
-    li_box = soup.find_all('p', attrs={'class': 'descList___3iOuI'})
-    ListData = iterGet(li_box)
-    if ListData is not None:
-        data.extend(pullOutInfo(ListData))
+    li_box_country = soup.find_all('span', attrs={'class': 'content___2hIPS'})
+    li_box_provinces = soup.find_all('div', attrs={'class': 'areaBlock1___3V3UU'})
+    li_box_cities = soup.find_all('div', attrs={'class': 'areaBlock2___27vn7'})
+    
+    ListData_country = iterGet(li_box_country)
+    ListData_provinces = iterGet(li_box_provinces)
+    ListData_cities = iterGet(li_box_cities)
+    
+    if ListData_country is not None:
+        data_country.extend(pullOutInfo(ListData_country))
             #print(str(pullOutInfo(li_box))[:100])
-
-        #For breaking the while loop if the scraping is blocked or delayed
-    if time.time() > time_out:
-        print("Session time out")
     
     # Output summary data
-    if data is not None:			
-        outputCSV(data, "_all")
+    if data_country is not None:			
+        outputCSV(data_country, "_country")
         
+    # Output data by provincesn
+    if ListData_provinces is not None:
+        outputTXT_Chinese(ListData_provinces, "_byProvinces")
+    
     # Output data by provinces
-    if ListData is not None:
-        outputCSV_Chinese(ListData, "_byProvinces")
+    if ListData_cities is not None:
+        outputTXT_Chinese(ListData_cities, "_cities")    
+        
+    #For breaking the while loop if the scraping is blocked or delayed
+    if time.time() > time_out:
+        print("Session time out")
 
 
 
